@@ -1,0 +1,58 @@
+r = requests.head(url="https://discord.com/api/v1")
+try:
+    print(f"Rate limit {int(r.headers['Retry-After']) / 60} minutes left")
+except:
+    print("No rate limit")
+########################################################################################
+
+import discord
+import os
+import random
+import requests
+import json
+
+
+client = discord.Client()
+
+def get_quote():
+  response = requests.get("https://zenquotes.io/api/random")
+  json_data = json.loads(response.text)
+  quote = json_data[0]['q'] + " -" + json_data[0]['a']
+  return(quote)
+
+
+@client.event
+async def on_ready():
+  print('We have logged in as {0.user}'.format(client))
+
+@client.event
+async def on_message(message):
+  if message.author == client.user:
+    return
+  
+  if message.content.startswith('$hello'):
+    await message.channel.send('Welcome to the server!',  tts=True)
+
+
+  choices = ["Heads", "Tails"]
+  rancoin = random.choice(choices)
+  if message.content.startswith('$coinflip'):
+    await message.channel.send(rancoin)
+  
+
+  if message.content.startswith('$wisdom'):
+    quote=get_quote()
+    await message.channel.send(quote, tts=True)
+
+  assist = '$hello= welcome message \n $wisdom= inspiration messages \n $coinflip= random coinflip heads or tails' 
+  
+  if message.content.startswith('$help'):
+     await message.channel.send(assist)
+
+
+  
+
+
+
+my_secret = os.environ['token']
+client.run(my_secret)
